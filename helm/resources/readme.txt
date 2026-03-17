@@ -98,6 +98,7 @@ kubectl get pods -n ingress-nginx
 Dovresti vedere un pod simile a:
 
 ---------------------------------------------------------------------------------------------
+minikube start --memory=4096 --cpus=2
 
 
 

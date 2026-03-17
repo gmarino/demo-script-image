@@ -11,6 +11,11 @@ ingress:
         - path: /
           service: demo-gateway-service
           port: 8765
+    - host: eureka.local
+      paths:
+        - path: /
+          service: demo-eureka-service
+          port: 8761
 services:
   demo-eureka-service:
     image: "ghcr.io/gmarino/demo-eureka/demo-eureka"
