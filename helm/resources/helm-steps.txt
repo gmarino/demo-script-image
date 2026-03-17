@@ -56,7 +56,7 @@ $ kubectl get svc
 	  http://127.0.0.1:36145/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
 
 
-$ helm install demo ./helm_chart   [se necesario eseguire script helm con permessi di root poi per minikube uscire]
+$ helm install demo ./helm-chart   [se necesario eseguire script helm con permessi di root poi per minikube uscire]
 
 ### Ricorda: per usare demo.local devi aggiungerlo nel tuo /etc/hosts
 # echo "127.0.0.1 demo.local" | sudo tee -a /etc/hosts
