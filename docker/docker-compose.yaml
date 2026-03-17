@@ -1,0 +1,65 @@
+services:
+  demo-eureka-service:
+    image: ghcr.io/gmarino/demo-eureka/demo-eureka
+    mem_limit: 700m
+    container_name: demo-eureka-service
+    ports:
+      - "8761:8080"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://demo-eureka-service:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    networks:
+      - bridge-demo-net
+
+  demo-service_A:
+    image: ghcr.io/gmarino/demo/demo
+    mem_limit: 700m
+    depends_on:
+      demo-eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://demo-eureka-service:8080/eureka/"
+
+    ports:
+      - "8081:8080"
+    networks:
+      - bridge-demo-net
+ demo-service_B:
+    image: ghcr.io/gmarino/demo/demo
+    mem_limit: 700m
+    depends_on:
+      demo-eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://demo-eureka-service:8080/eureka/"
+
+    ports:
+      - "8082:8080"
+    networks:
+      - bridge-demo-net
+
+  demo-gateway-service:
+    image: ghcr.io/gmarino/demo-gateway/demo-gateway
+    mem_limit: 700m
+    depends_on:
+      demo-eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://demo-eureka-service:8080/eureka/"
+      SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED: "true"
+      SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_LOWER_CASE_SERVICE_ID: "true"
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,gateway"
+
+    ports:
+      - "8765:8080"
+    networks:
+      - bridge-demo-net
+
+networks:
+  bridge-demo-net:
+    driver: bridge
