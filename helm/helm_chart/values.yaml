@@ -1,0 +1,57 @@
+global:
+  imagePullPolicy: IfNotPresent
+  eurekaUrl: "http://demo-eureka-service:8761/eureka/"
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: demo.local
+      paths:
+        - path: /
+          service: demo-gateway-service
+          port: 8765
+services:
+  demo-eureka-service:
+    image: "ghcr.io/gmarino/demo-eureka/demo-eureka"
+    port: 8080
+    replicaCount: 1
+    servicePort: 8761
+    env: []
+    healthPath: "/actuator/health"
+
+  demo-service-a:
+    image: "ghcr.io/gmarino/demo/demo"
+    port: 8080
+    replicaCount: 1
+    servicePort: 8081
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+    healthPath: "/actuator/health"
+
+  demo-service-b:
+    image: "ghcr.io/gmarino/demo/demo"
+    port: 8080
+    replicaCount: 1
+    servicePort: 8082
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+    healthPath: "/actuator/health"
+
+  demo-gateway-service:
+    image: "ghcr.io/gmarino/demo-gateway/demo-gateway"
+    port: 8080
+    replicaCount: 1
+    servicePort: 8765
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+      - name: SPRING_CLOUD_GATEWAY_DISCOVERY_LOWER_CASE_SERVICE_ID
+        value: "true"
+      - name: SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED
+        value: "true"
+      - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+        value: "health,info,gateway"
+    healthPath: "/actuator/health"
