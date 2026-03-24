@@ -1,0 +1,153 @@
+global:
+  imagePullPolicy: IfNotPresent
+  eurekaUrl: "http://demo-eureka-service:8761/eureka/"
+
+services:
+
+  ###########################################################################
+  # EUREKA
+  ###########################################################################
+  demo-eureka-service:
+    image: "ghcr.io/gmarino/demo-eureka/demo-eureka:latest"
+    replicaCount: 1
+
+    # porte
+    port: 8761           # containerPort
+    servicePort: 8761    # Service port
+    nodePort: 30761      # NodePort (Minikube)
+
+    # health
+    healthPath: "/actuator/health"
+
+    # probe timings (avvio lento)
+    readinessInitialDelaySeconds: 60
+    livenessInitialDelaySeconds: 90
+    readinessPeriodSeconds: 10
+    livenessPeriodSeconds: 10
+    readinessFailureThreshold: 30
+    livenessFailureThreshold: 30
+
+    # env
+    env:
+      - name: SERVER_ADDRESS
+        value: "0.0.0.0"
+
+    # resources (opzionale)
+    # resources:
+    #   requests: { cpu: "100m", memory: "256Mi" }
+    #   limits:   { cpu: "500m", memory: "512Mi" }
+
+  ###########################################################################
+  # GATEWAY
+  ###########################################################################
+  demo-gateway-service:
+    image: "ghcr.io/gmarino/demo-gateway/demo-gateway:latest"
+    replicaCount: 1
+
+    # porte
+    port: 8765
+    servicePort: 8765
+    nodePort: 30765
+
+    readinessPath: "/actuator/health/readiness"
+    livenessPath: "/actuator/health/liveness"
+
+
+    # probe timings (avvio ~40s)
+    readinessInitialDelaySeconds: 50
+    livenessInitialDelaySeconds: 70
+    readinessPeriodSeconds: 10
+    livenessPeriodSeconds: 10
+    readinessFailureThreshold: 30
+    livenessFailureThreshold: 30
+
+    # env
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+      - name: SPRING_CLOUD_GATEWAY_DISCOVERY_LOWER_CASE_SERVICE_ID
+        value: "true"
+      - name: SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED
+        value: "true"
+      - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+        value: "health,info,gateway"
+      - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
+        value: "true"
+      - name: JAVA_TOOL_OPTIONS
+        value: "-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=75.0"
+            
+      - name: MANAGEMENT_HEALTH_EUREKA_ENABLED
+        value: "false"
+      - name: MANAGEMENT_HEALTH_DISCOVERY_ENABLED
+        value: "false"
+
+    # resources (opzionale)
+    # resources:
+    #   requests: { cpu: "100m", memory: "256Mi" }
+    #   limits:   { cpu: "500m", memory: "512Mi" }
+
+  ###########################################################################
+  # SERVICE A
+  ###########################################################################
+  demo-service-a:
+    image: "ghcr.io/gmarino/demo/demo:latest"
+    replicaCount: 1
+
+    # porte
+    port: 8080
+    servicePort: 8081
+    nodePort: 30766
+
+    # health
+    healthPath: "/actuator/health"
+
+    # probe timings (avvio ~55s)
+    readinessInitialDelaySeconds: 60
+    livenessInitialDelaySeconds: 90
+    readinessPeriodSeconds: 10
+    livenessPeriodSeconds: 10
+    readinessFailureThreshold: 30
+    livenessFailureThreshold: 30
+
+    # env
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+
+    # resources (opzionale)
+    # resources:
+    #   requests: { cpu: "100m", memory: "256Mi" }
+    #   limits:   { cpu: "500m", memory: "512Mi" }
+
+  ###########################################################################
+  # SERVICE B
+  ###########################################################################
+  demo-service-b:
+    image: "ghcr.io/gmarino/demo/demo:latest"
+    replicaCount: 1
+
+    # porte
+    port: 8080
+    servicePort: 8082
+    nodePort: 30768
+
+    # health
+    healthPath: "/actuator/health"
+
+    # probe timings (coerenti con A)
+    readinessInitialDelaySeconds: 60
+    livenessInitialDelaySeconds: 90
+    readinessPeriodSeconds: 10
+    livenessPeriodSeconds: 10
+    readinessFailureThreshold: 30
+    livenessFailureThreshold: 30
+
+    # env
+    env:
+      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: "{{ .Values.global.eurekaUrl }}"
+
+    # resources (opzionale)
+    # resources:
+    #   requests: { cpu: "100m", memory: "256Mi" }
+    #   limits:   { cpu: "500m", memory: "512Mi" }

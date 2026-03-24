@@ -1,0 +1,5 @@
+apiVersion: v2
+name: demo-microservices
+version: 0.3.0
+description: Helm chart without ingress, NodePort for Eureka and Gateway
+appVersion: "1.0"
