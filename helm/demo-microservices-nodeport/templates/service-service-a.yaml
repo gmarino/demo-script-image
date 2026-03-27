@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-a
+spec:
+  type: {{ (index .Values.services "demo-service-a").serviceType }}
+  selector:
+    app: demo-service-a
+  ports:
+  - port: {{ (index .Values.services "demo-service-a").servicePort }}
+    targetPort: {{ (index .Values.services "demo-service-a").port }}
+    nodePort: {{ (index .Values.services "demo-service-a").nodePort }}

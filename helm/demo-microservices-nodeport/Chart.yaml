@@ -1,5 +1,6 @@
 apiVersion: v2
-name: demo-microservices
-version: 0.3.0
-description: Helm chart without ingress, NodePort for Eureka and Gateway
-appVersion: "1.0"
+name: demo-microservices-nodeport
+description: Demo microservices with Eureka, Gateway, Service A and B (NodePort mode)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

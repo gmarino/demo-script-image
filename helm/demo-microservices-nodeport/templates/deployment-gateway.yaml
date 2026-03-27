@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-gateway-service
+spec:
+  replicas: {{ (index .Values.services "demo-gateway-service").replicaCount }}
+  selector:
+    matchLabels:
+      app: demo-gateway-service
+  template:
+    metadata:
+      labels:
+        app: demo-gateway-service
+    spec:
+      containers:
+      - name: demo-gateway-service
+        image: {{ (index .Values.services "demo-gateway-service").image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+
+        ports:
+        - containerPort: {{ (index .Values.services "demo-gateway-service").port }}
+
+        env:
+        {{- range (index .Values.services "demo-gateway-service").env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+
+        readinessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-gateway-service").readinessPath }}
+            port: {{ (index .Values.services "demo-gateway-service").port }}
+
+        livenessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-gateway-service").livenessPath }}
+            port: {{ (index .Values.services "demo-gateway-service").port }}

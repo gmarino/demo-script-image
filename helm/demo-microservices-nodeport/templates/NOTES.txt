@@ -1,0 +1,13 @@
+Thank you for installing demo-microservices-nodeport!
+
+Services installed:
+- demo-eureka-service
+- demo-gateway-service
+- demo-service-a
+- demo-service-b
+
+Use:
+
+  kubectl get svc
+
+to see exposed ports.

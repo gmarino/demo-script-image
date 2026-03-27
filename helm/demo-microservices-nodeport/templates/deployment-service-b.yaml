@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-service-b
+spec:
+  replicas: {{ (index .Values.services "demo-service-b").replicaCount }}
+  selector:
+    matchLabels:
+      app: demo-service-b
+  template:
+    metadata:
+      labels:
+        app: demo-service-b
+    spec:
+      containers:
+      - name: demo-service-b
+        image: {{ (index .Values.services "demo-service-b").image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+
+        ports:
+        - containerPort: {{ (index .Values.services "demo-service-b").port }}
+
+        env:
+        {{- range (index .Values.services "demo-service-b").env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+
+        readinessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-service-b").healthPath }}
+            port: {{ (index .Values.services "demo-service-b").port }}
+
+        livenessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-service-b").healthPath }}
+            port: {{ (index .Values.services "demo-service-b").port }}

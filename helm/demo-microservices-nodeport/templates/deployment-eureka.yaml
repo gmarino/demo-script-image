@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-eureka-service
+spec:
+  replicas: {{ (index .Values.services "demo-eureka-service").replicaCount }}
+  selector:
+    matchLabels:
+      app: demo-eureka-service
+  template:
+    metadata:
+      labels:
+        app: demo-eureka-service
+    spec:
+      containers:
+      - name: demo-eureka-service
+        image: {{ (index .Values.services "demo-eureka-service").image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+
+        ports:
+        - containerPort: {{ (index .Values.services "demo-eureka-service").port }}
+
+        env:
+        {{- range (index .Values.services "demo-eureka-service").env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+
+        readinessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-eureka-service").healthPath }}
+            port: {{ (index .Values.services "demo-eureka-service").port }}
+          initialDelaySeconds: {{ (index .Values.services "demo-eureka-service").readinessInitialDelaySeconds }}
+
+        livenessProbe:
+          httpGet:
+            path: {{ (index .Values.services "demo-eureka-service").healthPath }}
+            port: {{ (index .Values.services "demo-eureka-service").port }}
+          initialDelaySeconds: {{ (index .Values.services "demo-eureka-service").livenessInitialDelaySeconds }}

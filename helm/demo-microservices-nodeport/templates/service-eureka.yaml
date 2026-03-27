@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-eureka-service
+spec:
+  type: {{ (index .Values.services "demo-eureka-service").serviceType }}
+  selector:
+    app: demo-eureka-service
+  ports:
+  - port: {{ (index .Values.services "demo-eureka-service").servicePort }}
+    targetPort: {{ (index .Values.services "demo-eureka-service").port }}
+    nodePort: {{ (index .Values.services "demo-eureka-service").nodePort }}
